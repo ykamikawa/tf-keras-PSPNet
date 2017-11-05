@@ -3,3 +3,4 @@ pretrained
 pretrained_*
 *.ipynb
 .ipynb_checkpoints
+images
