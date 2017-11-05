@@ -39,15 +39,15 @@ if __name__ == "__main__":
             type=int,
             help="batch size")
     parser.add_argument("--n_epochs",
-            default=50,
+            default=30,
             type=int,
             help="number of epoch")
     parser.add_argument("--epoch_steps",
-            default= 1000,
+            default=6000,
             type=int,
             help="number of epoch step")
     parser.add_argument("--val_steps",
-            default=10,
+            default=500,
             type=int,
             help="number of valdation step")
     parser.add_argument("--n_labels",
@@ -104,9 +104,9 @@ if __name__ == "__main__":
         print(pspnet.summary())
 
         # set callbacks
-        fpath = "./pretrained/LIP_PSPNet50_{epoch:02d}.hdf5"
-        cp_cb = ModelCheckpoint(filepath = fpath, monitor='val_loss', verbose=1, save_best_only=True, mode='auto', period=10)
-        es_cb = EarlyStopping(monitor='val_loss', patience=5, verbose=1, mode='auto')
+        fpath = "./pretrained_2/LIP_PSPNet50_{epoch:02d}.hdf5"
+        cp_cb = ModelCheckpoint(filepath = fpath, monitor='val_loss', verbose=1, save_best_only=True, mode='auto', period=5)
+        es_cb = EarlyStopping(monitor='val_loss', patience=2, verbose=1, mode='auto')
         tb_cb = TensorBoard(log_dir="./pretrained", write_images=True)
 
         # compile model
@@ -123,7 +123,7 @@ if __name__ == "__main__":
                 callbacks=[cp_cb, es_cb, tb_cb])
 
         # save weights
-        pspnet.save_weights("./pretrained/LIP_PSPNet50_stoped.hdf5")
+        pspnet.save_weights("./pretrained_2/LIP_PSPNet50_stoped.hdf5")
 
     # save model
     with open("./pretrained/LIP_PSPNet50.json", "w") as json_file:
