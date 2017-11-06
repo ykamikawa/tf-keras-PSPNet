@@ -122,9 +122,6 @@ if __name__ == "__main__":
                 validation_steps=args.val_steps,
                 callbacks=[cp_cb, es_cb, tb_cb])
 
-        # save weights
-        pspnet.save_weights("./pretrained_2/LIP_PSPNet50_stoped.hdf5")
-
     # save model
     with open("./pretrained/LIP_PSPNet50.json", "w") as json_file:
         json_file.write(json.dumps(json.loads(pspnet.to_json()), indent=2))
