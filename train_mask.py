@@ -1,17 +1,29 @@
 # -*- coding: utf-8 -*-
+from keras.models import Model
+from keras.layers import Input
+from keras.layers.core import Dense, Dropout, Activation, Flatten, Reshape, Permute
+from keras.layers.convolutional import Convolution2D, MaxPooling2D, UpSampling2D, ZeroPadding2D
+from keras.layers.normalization import BatchNormalization
+from keras.layers.merge import Multiply, Concatenate
 from keras.utils import np_utils
 import keras.backend.tensorflow_backend as KTF
 import tensorflow as tf
 from keras.callbacks import EarlyStopping, TensorBoard, ModelCheckpoint
 
-from generator import binarylab, gray2rgb, data_gen_small
+from generator_mask import data_gen_small
+from PSPNet import PSPNet50
+
 import os
 import numpy as np
-import pandas as pd
 import argparse
 import json
+import pandas as pd
+from PIL import Image
 
-from PSPNet import PSPNet50
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
+
 
 if __name__ == "__main__":
     # command line argments
@@ -35,15 +47,15 @@ if __name__ == "__main__":
             default="../LIP/TrainVal_parsing_annotations/TrainVal_parsing_annotations/val_segmentations/",
             help="val mask dir path")
     parser.add_argument("--batch_size",
-            default=5,
+            default=10,
             type=int,
             help="batch size")
     parser.add_argument("--n_epochs",
-            default=30,
+            default=50,
             type=int,
             help="number of epoch")
     parser.add_argument("--epoch_steps",
-            default=6000,
+            default=2000,
             type=int,
             help="number of epoch step")
     parser.add_argument("--val_steps",
@@ -51,14 +63,25 @@ if __name__ == "__main__":
             type=int,
             help="number of valdation step")
     parser.add_argument("--n_labels",
-            default=20,
+            default=1,
             type=int,
             help="Number of label")
     parser.add_argument("--input_shape",
-            default=(512, 512, 3),
+            default=(256, 256, 3),
             help="Input images shape")
+    parser.add_argument("--kernel",
+            default=3,
+            type=int,
+            help="Kernel size")
+    parser.add_argument("--pool_size",
+            default=(2, 2),
+            help="pooling and unpooling size")
+    parser.add_argument("--output_mode",
+            default="sigmoid",
+            type=str,
+            help="output activation")
     parser.add_argument("--loss",
-            default="categorical_crossentropy",
+            default="binary_crossentropy",
             type=str,
             help="loss function")
     parser.add_argument("--optimizer",
@@ -100,11 +123,11 @@ if __name__ == "__main__":
                 args.n_labels)
 
         # set model
-        pspnet = PSPNet50()
+        pspnet = PSPNet50(input_shape=args.input_shape, n_labels=args.n_labels, output_mode=args.output_mode, upsample_type="bilinear")
         print(pspnet.summary())
 
         # set callbacks
-        fpath = "./pretrained_2/LIP_PSPNet50_{epoch:02d}.hdf5"
+        fpath = './pretrained_2/LIP_PSPNet50_mask{epoch:02d}.hdf5'
         cp_cb = ModelCheckpoint(filepath = fpath, monitor='val_loss', verbose=1, save_best_only=True, mode='auto', period=5)
         es_cb = EarlyStopping(monitor='val_loss', patience=2, verbose=1, mode='auto')
         tb_cb = TensorBoard(log_dir="./pretrained_2", write_images=True)
@@ -113,7 +136,6 @@ if __name__ == "__main__":
         pspnet.compile(loss=args.loss,
                 optimizer=args.optimizer,
                 metrics=["accuracy"])
-
         # fit with genarater
         pspnet.fit_generator(generator=train_gen,
                 steps_per_epoch=args.epoch_steps,
@@ -123,6 +145,6 @@ if __name__ == "__main__":
                 callbacks=[cp_cb, es_cb, tb_cb])
 
     # save model
-    with open("./pretrained_2/LIP_PSPNet50.json", "w") as json_file:
-        json_file.write(json.dumps(json.loads(pspnet.to_json()), indent=2))
+    with open("./pretrained_2/LIP_SegUNet_mask.json", "w") as json_file:
+        json_file.write(json.dumps(json.loads(segunet.to_json()), indent=2))
     print("save json model done...")
