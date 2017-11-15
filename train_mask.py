@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-import keras.backend,tensorflow_backend as KTF
+import keras.backend.tensorflow_backend as KTF
 import tensorflow as tf
-from keras.callbacks import Earlystopping, Tensorboard, ModelCheckpoint
+from keras.callbacks import EarlyStopping, TensorBoard, ModelCheckpoint
 
 from generator_mask import data_gen_small
 

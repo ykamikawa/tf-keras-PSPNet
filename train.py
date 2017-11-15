@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from keras.utils import np_utils
 import keras.backend.tensorflow_backend as KTF
 import tensorflow as tf
 from keras.callbacks import EarlyStopping, TensorBoard, ModelCheckpoint
