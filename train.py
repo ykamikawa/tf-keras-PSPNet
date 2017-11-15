@@ -4,7 +4,8 @@ import keras.backend.tensorflow_backend as KTF
 import tensorflow as tf
 from keras.callbacks import EarlyStopping, TensorBoard, ModelCheckpoint
 
-from generator import binarylab, gray2rgb, data_gen_small
+from generator import data_gen_small
+
 import os
 import numpy as np
 import pandas as pd
@@ -12,6 +13,7 @@ import argparse
 import json
 
 from PSPNet import PSPNet50
+
 
 if __name__ == "__main__":
     # command line argments
@@ -57,6 +59,18 @@ if __name__ == "__main__":
     parser.add_argument("--input_shape",
             default=(512, 512, 3),
             help="Input images shape")
+    parser.add_argument("--output_stride",
+            default=16,
+            type=int,
+            help="output stirde")
+    parser.add_argument("--output_mode",
+            default="softmax",
+            type=str,
+            help="output activation")
+    parser.add_argument("--upsample_type",
+            default="deconv",
+            type=str,
+            help="upsampling type")
     parser.add_argument("--loss",
             default="categorical_crossentropy",
             type=str,
@@ -65,7 +79,13 @@ if __name__ == "__main__":
             default="adadelta",
             type=str,
             help="oprimizer")
+    parser.add_argument("--gpu_num",
+            default="0",
+            type=str,
+            help="number of gpu")
     args = parser.parse_args()
+
+    os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu_num
 
     # set the necessary list
     train_list = pd.read_csv(args.train_list,header=None)
@@ -85,6 +105,12 @@ if __name__ == "__main__":
         KTF.set_session(session)
         KTF.set_learning_phase(1)
 
+        # set callbacks
+        fpath = "./pretrained_2/LIP_PSPNet50_{epoch:02d}.hdf5"
+        cp_cb = ModelCheckpoint(filepath = fpath, monitor='val_loss', verbose=1, save_best_only=True, mode='auto', period=5)
+        es_cb = EarlyStopping(monitor='val_loss', patience=2, verbose=1, mode='auto')
+        tb_cb = TensorBoard(log_dir="./pretrained_2", write_images=True)
+
         # set generater
         train_gen = data_gen_small(trainimg_dir,
                 trainmsk_dir,
@@ -100,14 +126,11 @@ if __name__ == "__main__":
                 args.n_labels)
 
         # set model
-        pspnet = PSPNet50()
+        pspnet = PSPNet50(input_shape=args.input_shape,
+                n_labels=args.n_labels,
+                output_mode=args.output_mode,
+                upsample_type=args.upsample_type)
         print(pspnet.summary())
-
-        # set callbacks
-        fpath = "./pretrained_2/LIP_PSPNet50_{epoch:02d}.hdf5"
-        cp_cb = ModelCheckpoint(filepath = fpath, monitor='val_loss', verbose=1, save_best_only=True, mode='auto', period=5)
-        es_cb = EarlyStopping(monitor='val_loss', patience=2, verbose=1, mode='auto')
-        tb_cb = TensorBoard(log_dir="./pretrained_2", write_images=True)
 
         # compile model
         pspnet.compile(loss=args.loss,

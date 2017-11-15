@@ -9,7 +9,6 @@ from keras.layers import multiply, add, concatenate
 from keras.engine.topology import Layer
 from keras.engine import InputSpec
 from keras.utils import np_utils, conv_utils
-from keras.callbacks import EarlyStopping, TensorBoard, ModelCheckpoint
 
 from os.path import splitext, join, isfile
 from os import environ
@@ -538,7 +537,6 @@ def PSPNet50(input_shape=(512, 512, 3),
     out = Reshape((input_shape[0] * input_shape[1], n_labels), input_shape=(input_shape[0], input_shape[1], n_labels))(out)
     # default "softmax"
     out = Activation(output_mode)(out)
-
 
     model = Model(inputs=img_input, outputs=out)
 
