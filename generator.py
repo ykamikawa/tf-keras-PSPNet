@@ -14,7 +14,7 @@ def gray2rgb(img):
     new_img = np.array(new_img).reshape(img.shape[0], img.shape[1], 3)
     return new_img
 
-def binarylab(labels,dims,n_labels):
+def classlab(labels,dims,n_labels):
     x = np.zeros([dims[0],dims[1],n_labels])
     for i in range(dims[0]):
         for j in range(dims[1]):
@@ -30,14 +30,14 @@ def data_gen_small(img_dir, mask_dir, lists, batch_size, dims, n_labels):
         labels = []
         for i in ix:
             # images
-            original_img = load_img(img_dir + lists.iloc[i, 0]+".jpg")
-            resized_img = imresize(original_img, dims+[3])
+            original_img = cv2.imresize(img_dir + lists.iloc[i, 0]+".jpg")[:, :, ::-1]
+            resized_img = cv2.resize(original_img, (dims[0], dims[1]))
             array_img = img_to_array(resized_img)/255
             imgs.append(array_img)
             # masks
             original_mask = cv2.imread(mask_dir + lists.iloc[i, 0] + '.png')
             resized_mask = cv2.resize(original_mask, (dims[0], dims[1]))
-            array_mask = binarylab(resized_mask[:, :, 0],dims,n_labels)
+            array_mask = classlab(resized_mask[:, :, 0],dims,n_labels)
             labels.append(array_mask)
         imgs = np.array(imgs)
         labels = np.array(labels)
