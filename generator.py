@@ -21,7 +21,7 @@ def data_gen_small(img_dir, mask_dir, lists, batch_size, dims, n_labels):
         labels = []
         for i in ix:
             # images
-            original_img = cv2.imresize(img_dir + lists.iloc[i, 0]+".jpg")[:, :, ::-1]
+            original_img = cv2.imread(img_dir + lists.iloc[i, 0]+".jpg")[:, :, ::-1]
             resized_img = cv2.resize(original_img, (dims[0], dims[1]))
             array_img = img_to_array(resized_img)/255
             imgs.append(array_img)
