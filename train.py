@@ -40,11 +40,11 @@ if __name__ == "__main__":
             type=int,
             help="batch size")
     parser.add_argument("--n_epochs",
-            default=30,
+            default=100,
             type=int,
             help="number of epoch")
     parser.add_argument("--epoch_steps",
-            default=6000,
+            default=1000,
             type=int,
             help="number of epoch step")
     parser.add_argument("--val_steps",
