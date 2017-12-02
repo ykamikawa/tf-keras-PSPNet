@@ -457,7 +457,7 @@ def PSPNet50(input_shape=(512, 512, 3),
             levels=[6,3,2,1],
             use_se=True,
             output_mode="softmax",
-            upsample_type='bilinear'):
+            upsample_type='deconv'):
 
     # Input shape
     img_input = Input(shape=input_shape)
