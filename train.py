@@ -78,6 +78,9 @@ if __name__ == "__main__":
             default="adadelta",
             type=str,
             help="oprimizer")
+    parser.add_argument("--class_weights",
+            default=None,
+            help="dataset class weights")
     parser.add_argument("--gpu_num",
             default="0",
             type=str,

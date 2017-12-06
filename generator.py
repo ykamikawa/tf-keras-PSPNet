@@ -2,7 +2,6 @@
 import numpy as np
 import cv2
 from keras.preprocessing.image import array_to_img, img_to_array, load_img, ImageDataGenerator
-from scipy.misc import imresize
 
 
 def catelab(labels,dims,n_labels):
