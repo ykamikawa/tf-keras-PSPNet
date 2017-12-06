@@ -752,10 +752,10 @@ def getColor(r,g,b):
                     return 0
 
 def createResponse(outputs, inputs):
-    categories = ["Hat", "Hair", "Sunglasses", "Upper-clothes",
-              "Dress", "Coat", "Socks", "Pants", "Glove",
-             "Scarf", "Skirt", "Jumpsuits", "Face", "Right-arm",
-             "Left-arm", "Right-leg", "Left-leg", "Right-shoe", "Left-shoe"]
+    categories = ["Hat", "Hair", "Glove", "Sunglasses",
+              "Upper-clothes", "Dress", "Coat", "Socks", "Pants",
+             "Jumpsuits", "Scarf", "Skirt", "Face", "Left-arm",
+             "Right-arm", "Left-leg", "Right-leg", "Left-shoe", "Right-shoe"]
     colors = ["black", "white", "gray", "blue",
              "green", "lightblue", "brown", "purple",
              "yellow", "red", "pink", "orange"]
@@ -767,7 +767,7 @@ def createResponse(outputs, inputs):
     inputs = cv2.resize(inputs, (512, 512))
 
     for i, cate in enumerate(np.unique(outputs, return_counts=True)[0]):
-        if cate in [0,2,13,14,15,16,17,18,19] or np.unique(outputs, return_counts=True)[1][i] < 300:
+        if cate in [0,2,13,14,15,16,17] or np.unique(outputs, return_counts=True)[1][i] < 300:
             continue
         else:
             _ = {"colors":{}}
