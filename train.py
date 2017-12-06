@@ -114,8 +114,11 @@ if __name__ == "__main__":
                 'dress', 'coat', 'socks', 'pants', 'jumpsuits', 'scarf', 'skirt',
                 'face', 'leftArm', 'rightArm', 'leftLeg', 'rightLeg', 'leftShoe','rightShoe']
         if args.class_weights:
+            """
             class_weights = {0:1, 1:40, 2:1, 3:114, 4:151, 5:3, 6:53, 7:7, 8:165, 9:7, 10:106,
                     11:249, 12:150, 13:1, 14:1, 15:1, 16:1, 17:1, 18:114, 19:118}
+            """
+            class_weights = [1, 40, 1, 114, 151, 3, 53, 7, 165, 7, 106, 249, 150, 1, 1, 1, 1, 1, 114, 118]
 
         # set callbacks
         fpath = "./pretrained_class_weights/LIP_PSPNet50_class_weights{epoch:02d}.hdf5"
