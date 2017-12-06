@@ -79,7 +79,7 @@ if __name__ == "__main__":
             type=str,
             help="oprimizer")
     parser.add_argument("--class_weights",
-            default=None,
+            default=True,
             help="dataset class weights")
     parser.add_argument("--gpu_num",
             default="0",
@@ -109,11 +109,19 @@ if __name__ == "__main__":
         KTF.set_session(session)
         KTF.set_learning_phase(1)
 
+        # class weights
+        classes = ['background', 'hat', 'hair', 'glove', 'sunglasses', 'upperclothes',
+                'dress', 'coat', 'socks', 'pants', 'jumpsuits', 'scarf', 'skirt',
+                'face', 'leftArm', 'rightArm', 'leftLeg', 'rightLeg', 'leftShoe','rightShoe']
+        if args.class_weights:
+            class_weights = {0:1, 1:40, 2:1, 3:114, 4:151, 5:3, 6:53, 7:7, 8:165, 9:7, 10:106,
+                    11:249, 12:150, 13:1, 14:1, 15:1, 16:1, 17:1, 18:114, 19:118}
+
         # set callbacks
-        fpath = "./pretrained/LIP_PSPNet50_{epoch:02d}.hdf5"
+        fpath = "./pretrained_class_weights/LIP_PSPNet50_class_weights{epoch:02d}.hdf5"
         cp_cb = ModelCheckpoint(filepath = fpath, monitor='val_loss', verbose=1, save_best_only=True, mode='auto', period=2)
         es_cb = EarlyStopping(monitor='val_loss', patience=2, verbose=1, mode='auto')
-        tb_cb = TensorBoard(log_dir="./pretrained", write_images=True)
+        tb_cb = TensorBoard(log_dir="./pretrained_class_weights", write_images=True)
 
         # set generater
         train_gen = data_gen_small(trainimg_dir,
@@ -147,9 +155,10 @@ if __name__ == "__main__":
                 epochs=args.n_epochs,
                 validation_data=val_gen,
                 validation_steps=args.val_steps,
+                class_weight=class_weights,
                 callbacks=[cp_cb, es_cb, tb_cb])
 
     # save model
-    with open("./pretrained/LIP_PSPNet50.json", "w") as json_file:
+    with open("./pretrained_class_weights/LIP_PSPNet50.json", "w") as json_file:
         json_file.write(json.dumps(json.loads(pspnet.to_json()), indent=2))
     print("save json model done...")
