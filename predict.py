@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import argparse
 import cv2
-import numpy as np
 import json
 from keras.preprocessing.image import img_to_array
 from utils import createResponse
 from PSPNet import PSPNet50
+
 
 def inference(model, inputs):
     orig_w, orig_h = inputs.shape[0:2]
@@ -18,32 +18,31 @@ def inference(model, inputs):
 
     return outputs
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     # command line argments
     parser = argparse.ArgumentParser(description="predicter")
-    parser.add_argument("--img_path",
+    parser.add_argument(
+            "--img_path",
             default="./images/1.jpg",
             help="target img path")
-    parser.add_argument("--architecture",
+    parser.add_argument(
+            "--architecture",
             default="PSPNet",
             choices=["PSPNet", "SegUNet"],
             help="architecture type")
-    parser.add_argument("--weight",
+    parser.add_argument(
+            "--weight",
             default="./pretrained/LIP_PSPNet50_05.hdf5",
             help="pretrained weight path")
-    parser.add_argument("--output_path",
+    parser.add_argument(
+            "--output_path",
             default="./response.json",
             help="output path")
     args = parser.parse_args()
 
     # load model
-    if args.architecture == "PSPNet":
-        model = PSPNet50()
-    """
-    else:
-        model = SegUNet()
-    """
+    model = PSPNet50()
     model.load_weights(args.weight)
 
     # inference
