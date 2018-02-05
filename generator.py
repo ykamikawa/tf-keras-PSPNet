@@ -12,6 +12,7 @@ def catelab(labels, dims, n_labels):
     x = x.reshape(dims[0]*dims[1], n_labels)
     return x
 
+
 # generator that we will use to read the data from the directory
 def data_gen_small(img_dir, mask_dir, lists, batch_size, dims, n_labels):
     while True:

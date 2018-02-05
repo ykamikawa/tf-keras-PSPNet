@@ -14,7 +14,7 @@ def msklab(labels,dims,target_num):
     x = x.reshape(dims[0]*dims[1],1)
     return x
 
-# generator that we will use to read the data from the directory
+
 # generator that we will use to read the data from the directory
 def data_gen_small(img_dir, mask_dir, lists, batch_size, dims, n_labels):
     while True:

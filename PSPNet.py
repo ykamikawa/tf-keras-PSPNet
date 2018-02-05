@@ -100,6 +100,7 @@ class CroppingLike2D(Layer):
                     :]
             return output
 
+
 class BilinearUpSampling2D(Layer):
     def __init__(self, target_shape=None,factor=None, data_format=None, **kwargs):
         # conmpute dataformat
@@ -397,6 +398,7 @@ def interp_block(x, num_filters=512, level=1, input_shape=(512, 512, 3), output_
     global_feat = Lambda(Interp, arguments={'shape': feature_map_shape})(global_feat)
 
     return global_feat
+
 
 def _squeeze_excite_block(input, filters, k=1, name=None):
     init = input
