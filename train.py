@@ -16,7 +16,7 @@ from PSPNet import PSPNet50
 
 if __name__ == "__main__":
     # command line argments
-    parser = argparse.ArgumentParser(description="SegUNet LIP dataset")
+    parser = argparse.ArgumentParser(description="PSPNet LIP dataset")
     parser.add_argument("--train_list",
             default="../LIP/TrainVal_images/train_id.txt",
             help="train list path")
@@ -92,8 +92,8 @@ if __name__ == "__main__":
         os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu_num
 
     # set the necessary list
-    train_list = pd.read_csv(args.train_list,header=None)
-    val_list = pd.read_csv(args.val_list,header=None)
+    train_list = pd.read_csv(args.train_list, header=None)
+    val_list = pd.read_csv(args.val_list, header=None)
 
     # set the necessary directories
     trainimg_dir = args.trainimg_dir
