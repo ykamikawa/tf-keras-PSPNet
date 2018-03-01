@@ -140,7 +140,8 @@ class BilinearUpSampling2D(Layer):
         return dict(list(base_config.items()) + list(config.items()))
 
 
-def identity_block(input_tensor, kernel_size, filters, stage, block,dilation_rate=1,multigrid=[1,2,1],use_se=True):
+# residual module
+def identity_block(input_tensor, kernel_size, filters, stage, block, dilation_rate=1, multigrid=[1,2,1], use_se=True):
     # conv filters
     filters1, filters2, filters3 = filters
 
@@ -155,11 +156,12 @@ def identity_block(input_tensor, kernel_size, filters, stage, block,dilation_rat
     bn_name_base = 'bn' + str(stage) + block + '_branch'
 
     # dilated rate
-    if dilation_rate<2:
-        multigrid = [1,1,1]
+    if dilation_rate < 2:
+        multigrid = [1, 1, 1]
 
     # forward
-    x = Conv2D(filters1,
+    x = Conv2D(
+            filters1,
             (1, 1),
             name=conv_name_base + '2a',
             dilation_rate=dilation_rate*multigrid[0])(input_tensor)
@@ -180,9 +182,9 @@ def identity_block(input_tensor, kernel_size, filters, stage, block,dilation_rat
             dilation_rate=dilation_rate*multigrid[2])(x)
     x = BatchNormalization(axis=bn_axis, name=bn_name_base + '2c')(x)
 
-    # stage 5 after
-    if use_se and stage<5:
-        se = _squeeze_excite_block(x, filters3, k=1,name=conv_name_base+'_se')
+    # stage 5 after squeeze and excinttation layer
+    if use_se and stage < 5:
+        se = _squeeze_excite_block(x, filters3, k=1, name=conv_name_base+'_se')
         x = multiply([x, se])
     x = add([x, input_tensor])
     x = Activation('relu')(x)
@@ -213,7 +215,8 @@ def _conv(**conv_params):
     return f
 
 
-def aspp_block(x,num_filters=256,rate_scale=1,output_stride=16,input_shape=(512,512,3)):
+# Atrous Spatial Pyramid Pooling block
+def aspp_block(x, num_filters=256, rate_scale=1, output_stride=16, input_shape=(512, 512, 3)):
     # compute dataformat
     if K.image_data_format() == 'channels_last':
         bn_axis = 3
@@ -228,7 +231,7 @@ def aspp_block(x,num_filters=256,rate_scale=1,output_stride=16,input_shape=(512,
             dilation_rate=(6*rate_scale, 6*rate_scale),
             padding='valid',
             block='assp_3_3_1_%s'%output_stride)(conv3_3_1)
-    conv3_3_1 = BatchNormalization(axis=bn_axis,name='bn_3_3_1_%s'%output_stride)(conv3_3_1)
+    conv3_3_1 = BatchNormalization(axis=bn_axis, name='bn_3_3_1_%s'%output_stride)(conv3_3_1)
 
     conv3_3_2 = ZeroPadding2D(padding=(12*rate_scale, 12*rate_scale))(x)
     conv3_3_2 = _conv(
@@ -237,7 +240,7 @@ def aspp_block(x,num_filters=256,rate_scale=1,output_stride=16,input_shape=(512,
             dilation_rate=(12*rate_scale, 12*rate_scale),
             padding='valid',
             block='assp_3_3_2_%s'%output_stride)(conv3_3_2)
-    conv3_3_2 = BatchNormalization(axis=bn_axis,name='bn_3_3_2_%s'%output_stride)(conv3_3_2)
+    conv3_3_2 = BatchNormalization(axis=bn_axis, name='bn_3_3_2_%s'%output_stride)(conv3_3_2)
 
     conv3_3_3 = ZeroPadding2D(padding=(18*rate_scale, 18*rate_scale))(x)
     conv3_3_3 = _conv(
@@ -246,20 +249,21 @@ def aspp_block(x,num_filters=256,rate_scale=1,output_stride=16,input_shape=(512,
             dilation_rate=(18*rate_scale, 18*rate_scale),
             padding='valid',
             block='assp_3_3_3_%s'%output_stride)(conv3_3_3)
-    conv3_3_3 = BatchNormalization(axis=bn_axis,name='bn_3_3_3_%s'%output_stride)(conv3_3_3)
+    conv3_3_3 = BatchNormalization(axis=bn_axis, name='bn_3_3_3_%s'%output_stride)(conv3_3_3)
 
     conv1_1 = _conv(
             filters=num_filters,
             kernel_size=(1, 1),
             padding='same',
             block='assp_1_1_%s'%output_stride)(x)
-    conv1_1 = BatchNormalization(axis=bn_axis,name='bn_1_1_%s'%output_stride)(conv1_1)
+    conv1_1 = BatchNormalization(axis=bn_axis, name='bn_1_1_%s'%output_stride)(conv1_1)
 
     # global_feat = AveragePooling2D((input_shape[0]/output_stride,input_shape[1]/output_stride))(x)
     # global_feat = _conv(filters=num_filters, kernel_size=(1, 1),padding='same')(global_feat)
     # global_feat = BatchNormalization()(global_feat)
     # global_feat = BilinearUpSampling2D((256,input_shape[0]/output_stride,input_shape[1]/output_stride),factor=input_shape[1]/output_stride)(global_feat)
 
+    # channel merge
     y = merge([
         conv3_3_1,
         conv3_3_2,
@@ -280,7 +284,8 @@ def aspp_block(x,num_filters=256,rate_scale=1,output_stride=16,input_shape=(512,
     return y
 
 
-def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2),dilation_rate=1,multigrid=[1,2,1],use_se=True):
+# residual module
+def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2), dilation_rate=1, multigrid=[1, 2, 1], use_se=True):
     # conv filters
     filters1, filters2, filters3 = filters
 
@@ -293,10 +298,10 @@ def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2),
     bn_name_base = 'bn' + str(stage) + block + '_branch'
 
     # dailated rate
-    if dilation_rate>1:
+    if dilation_rate > 1:
         strides=(1,1)
     else:
-        multigrid = [1,1,1]
+        multigrid = [1, 1, 1]
 
     # forward
     x = Conv2D(
@@ -331,8 +336,8 @@ def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2),
             name=conv_name_base + '1')(input_tensor)
     shortcut = BatchNormalization(axis=bn_axis, name=bn_name_base + '1')(shortcut)
 
-    # stage after 5
-    if use_se and stage<5:
+    # stage after 5 squeeze and excittation
+    if use_se and stage < 5:
         se = _squeeze_excite_block(x, filters3, k=1,name=conv_name_base+'_se')
         x = multiply([x, se])
     x = add([x, shortcut])
@@ -341,7 +346,7 @@ def conv_block(input_tensor, kernel_size, filters, stage, block, strides=(2, 2),
     return x
 
 
-def duc(x,factor=8,output_shape=(512,512,1)):
+def duc(x, factor=8, output_shape=(512, 512, 1)):
     if K.image_data_format() == 'channels_last':
         bn_axis = 3
     else:
@@ -365,6 +370,7 @@ def duc(x,factor=8,output_shape=(512,512,1)):
     return x
 
 
+# interpolation
 def Interp(x, shape):
     from keras.backend import tf as ktf
     new_height, new_width = shape
@@ -372,6 +378,7 @@ def Interp(x, shape):
     return resized
 
 
+# interpolation block
 def interp_block(x, num_filters=512, level=1, input_shape=(512, 512, 3), output_stride=16):
     feature_map_shape = (input_shape[0] / output_stride, input_shape[1] / output_stride)
 
@@ -394,12 +401,13 @@ def interp_block(x, num_filters=512, level=1, input_shape=(512, 512, 3), output_
             kernel_size=(1, 1),
             padding='same',
             name='conv_level_%s_%s'%(level,output_stride))(global_feat)
-    global_feat = BatchNormalization(axis=bn_axis, name='bn_level_%s_%s'%(level,output_stride))(global_feat)
+    global_feat = BatchNormalization(axis=bn_axis, name='bn_level_%s_%s'%(level, output_stride))(global_feat)
     global_feat = Lambda(Interp, arguments={'shape': feature_map_shape})(global_feat)
 
     return global_feat
 
 
+# squeeze and excitation function
 def _squeeze_excite_block(input, filters, k=1, name=None):
     init = input
     se_shape = (1, 1, filters * k) if K.image_data_format() == 'channels_last' else (filters * k, 1, 1)
@@ -541,7 +549,7 @@ def PSPNet50(
     x = identity_block(x, 3, [256, 256, 1024], stage=4, block='f', dilation_rate=1*rate_scale, multigrid=multigrid, use_se=use_se)
 
     init_rate = 2
-    for block in range(4,num_blocks+1):
+    for block in range(4, num_blocks+1):
         if block==4:
             block=''
         x = conv_block(x, 3, [512, 512, 2048], stage=5, block='a%s'%block,dilation_rate=init_rate*rate_scale, multigrid=multigrid, use_se=use_se)
