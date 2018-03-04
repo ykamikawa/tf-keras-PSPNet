@@ -50,13 +50,15 @@ def main(args):
         tb_cb = TensorBoard(log_dir="./pretrained_class_weights", write_images=True)
 
         # set generater
-        train_gen = data_gen_small(trainimg_dir,
+        train_gen = data_gen_small(
+                trainimg_dir,
                 trainmsk_dir,
                 train_list,
                 args.batch_size,
                 [args.input_shape[0], args.input_shape[1]],
                 args.n_labels)
-        val_gen = data_gen_small(valimg_dir,
+        val_gen = data_gen_small(
+                valimg_dir,
                 valmsk_dir,
                 val_list,
                 args.batch_size,
@@ -64,19 +66,22 @@ def main(args):
                 args.n_labels)
 
         # set model
-        pspnet = PSPNet50(input_shape=args.input_shape,
+        pspnet = PSPNet50(
+                input_shape=args.input_shape,
                 n_labels=args.n_labels,
                 output_mode=args.output_mode,
                 upsample_type=args.upsample_type)
         print(pspnet.summary())
 
         # compile model
-        pspnet.compile(loss=args.loss,
+        pspnet.compile(
+                loss=args.loss,
                 optimizer=args.optimizer,
                 metrics=["accuracy"])
 
         # fit with genarater
-        pspnet.fit_generator(generator=train_gen,
+        pspnet.fit_generator(
+                generator=train_gen,
                 steps_per_epoch=args.epoch_steps,
                 epochs=args.n_epochs,
                 validation_data=val_gen,
