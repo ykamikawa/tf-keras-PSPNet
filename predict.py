@@ -24,16 +24,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="predicter")
     parser.add_argument(
             "--img_path",
-            default="./images/1.jpg",
             help="target img path")
     parser.add_argument(
-            "--architecture",
-            default="PSPNet",
-            choices=["PSPNet", "SegUNet"],
-            help="architecture type")
-    parser.add_argument(
             "--weight",
-            default="./pretrained/LIP_PSPNet50_05.hdf5",
             help="pretrained weight path")
     parser.add_argument(
             "--output_path",
