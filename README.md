@@ -3,7 +3,6 @@
 Pyramid Scene persing Network is a model of semantic segmentation based on Fully Comvolutional Network.
 This repository contains the implementation of learning and testing in keras and tensorflow.
 
-![architecture](https://user-images.githubusercontent.com/27678705/33702796-899e26d4-db68-11e7-8733-11f3fd80a8d3.png)
 
 ## Architecutre
 
