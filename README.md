@@ -40,10 +40,3 @@ This repository contains the implementation of learning and testing in keras and
 
     ` python predict.py --input_path [path/to//input_imahge] `
 
-## DEMO
-
-### dataset
-
-- look into person
-
-![demo1](https://user-images.githubusercontent.com/27678705/33703457-8a504fdc-db6b-11e7-8922-db3c61294b18.png)
