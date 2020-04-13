@@ -1,4 +1,5 @@
 import os
+
 import cv2
 import numpy as np
 
@@ -23,13 +24,13 @@ def data_gen_small(img_dir, mask_dir, lists, batch_size, dims, n_labels):
         labels = []
         for i in ix:
             # images
-            img_path = os.path.join(img_dir, lists.iloc[i, 0], '.jpg')
+            img_path = os.path.join(img_dir, lists.iloc[i, 0], ".jpg")
             original_img = cv2.imread(img_path)[:, :, ::-1]
             resized_img = cv2.resize(original_img, (dims[0], dims[1]))
             array_img = img_to_array(resized_img) / 255
             imgs.append(array_img)
             # masks
-            mask_path = os.path.join(img_dir, lists.iloc[i, 0], '.png')
+            mask_path = os.path.join(img_dir, lists.iloc[i, 0], ".png")
             original_mask = cv2.imread(mask_path)
             resized_mask = cv2.resize(original_mask, (dims[0], dims[1]))
             array_mask = category_label(resized_mask[:, :, 0], dims, n_labels)
